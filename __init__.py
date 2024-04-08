@@ -4,15 +4,15 @@ from bpy.props import BoolProperty, IntProperty, EnumProperty, StringProperty, P
 import os
 
 bl_info = {
-    "name": "Super Batch Export",
-    "author": "MrTriPie",
-    "version": (2, 1, 1),
+    "name": "Super Batch Export - Godot collision-aware fork",
+    "author": "MrTriPie, DerPlayer",
+    "version": (2, 1, 2),
     "blender": (3, 3, 0),
     "category": "Import-Export",
     "location": "Set in preferences below. Default: Top Bar (After File, Edit, ...Help)",
     "description": "Batch export the objects in your scene into seperate files",
     "warning": "Relies on the export add-on for the format used being enabled",
-    "doc_url": "github.com/mrtripie/Blender-Super-Batch-Export/blob/main/README.md",
+    "doc_url": "github.com/derplayer/Blender-Super-Batch-Export/blob/main/README.md",
     "tracker_url": "github.com/mrtripie/Blender-Super-Batch-Export/issues",
 }
 
@@ -232,10 +232,16 @@ class EXPORT_MESH_OT_batch(Operator):
 
         self.file_count = 0
 
+        # godot colonly unhide
+        for ob in bpy.context.scene.objects:
+            if "-colonly" in ob.name:
+                ob.hide_set(False)
+
         view_layer = context.view_layer
         obj_active = view_layer.objects.active
         selection = context.selected_objects
         objects = view_layer.objects.values()
+                
         if settings.limit == 'SELECTED':
             objects = selection
 
@@ -291,6 +297,11 @@ class EXPORT_MESH_OT_batch(Operator):
             self.report({'INFO'}, "Exported " +
                         str(self.file_count) + " file(s)")
 
+        # godot colonly hide
+        for ob in bpy.context.scene.objects:
+            if "-colonly" in ob.name:
+                ob.hide_set(True)
+        
         return {'FINISHED'}
 
     def select_children_recursive(self, obj, context):
